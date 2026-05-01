@@ -1,0 +1,45 @@
+# render.yaml - Configuración de despliegue en Render.com
+# 
+# Ubicación: raíz del repositorio (DietoMetrics/render.yaml)
+# Este archivo define el servicio web que Render debe crear
+
+services:
+  - type: web
+    name: dietometrics
+    env: python
+    
+    # Configuración de la región y plan
+    region: ohio                    # Cambia a otra región si es más cercana
+    plan: free                      # Cambiar a 'standard' para mejor performance
+    
+    # Rama y contexto
+    branch: main                    # La rama a desplegar automáticamente
+    
+    # Runtime
+    runtime: python
+    pythonVersion: 3.9
+    
+    # Comandos de construcción e inicio
+    buildCommand: bash start.sh     # Ejecuta el script de inicio
+    startCommand: "gunicorn -w 1 -b 0.0.0.0:$PORT --timeout 120 main:app"
+    
+    # Variables de entorno
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.9"
+      - key: NODE_VERSION
+        value: "18"
+      - key: ENVIRONMENT
+        value: "production"
+    
+    # Health check
+    healthCheckPath: /health
+    
+    # Recursos
+    numInstances: 1
+    scaling:
+      minNumInstances: 1
+      maxNumInstances: 3
+      
+    # Logs
+    logLevel: info
