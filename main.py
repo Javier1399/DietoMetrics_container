@@ -856,3 +856,22 @@ def optimizar_grupo(req: OptimizarGrupoReq):
             "grasa": round(abs(gras_real - req.grasa_objetivo), 1),
         }
     }
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+import os
+
+STATIC_DIR = Path(__file__).parent / "dist"
+FRONTEND_EXISTS = STATIC_DIR.exists()
+
+if FRONTEND_EXISTS:
+    print(f"✓ Frontend compilado encontrado")
+    app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="frontend")
+else:
+    print("⚠️  Frontend no compilado")
+    @app.get("/{full_path:path}")
+    async def catch_all(full_path: str):
+        return {"error": "Frontend no disponible"}
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "version": "4.0.0", "frontend": "compiled" if FRONTEND_EXISTS else "not_compiled"}
